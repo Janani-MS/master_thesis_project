@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+// Domain models (Project, BacklogItem, BacklogDependency, SprintContext,
+// PlanningRun, Recommendation, SelectedItem, EvaluationScenario) will be
+// added incrementally as each feature is implemented.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../lib/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  backlogItems       BacklogItem[]
+  sprintContexts     SprintContext[]
+  planningRuns       PlanningRun[]
+  evaluationScenario EvaluationScenario?
+
+  @@map("projects")
+}
+
+enum BacklogItemType {
+  FEATURE
+  BUG
+  TECH_DEBT
+  CHORE
+}
+
+enum BacklogItemPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BacklogItemStatus {
+  BACKLOG
+  READY
+  IN_PROGRESS
+  DONE
+}
+
+model BacklogItem {
+  id          String              @id @default(cuid())
+  projectId   String
+  project     Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  type        BacklogItemType     @default(FEATURE)
+  priority    BacklogItemPriority @default(MEDIUM)
+  storyPoints Int?
+  status      BacklogItemStatus   @default(BACKLOG)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // "this item depends on ..." (this item is blocked until the dependency is done)
+  dependsOn BacklogDependency[] @relation("DependencyFrom")
+  // "... depends on this item" (this item blocks other items)
+  blocks    BacklogDependency[] @relation("DependencyTo")
+
+  @@index([projectId])
+  @@map("backlog_items")
+}
+
+/// Directed dependency between two backlog items in the same project.
+/// Semantics: `fromItem` depends on `toItem`, meaning `fromItem` is
+/// considered blocked until `toItem` is completed.
+model BacklogDependency {
+  id         String      @id @default(cuid())
+  fromItemId String
+  toItemId   String
+  fromItem   BacklogItem @relation("DependencyFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
+  toItem     BacklogItem @relation("DependencyTo", fields: [toItemId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+
+  @@unique([fromItemId, toItemId])
+  @@index([fromItemId])
+  @@index([toItemId])
+  @@map("backlog_dependencies")
+}
+
+/// A named set of sprint-planning inputs (goal, capacity, constraints) for
+/// a project. A project can have multiple sprint contexts over time (e.g.
+/// one per sprint); each future planning run will be tied to one context.
+model SprintContext {
+  id                 String   @id @default(cuid())
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name               String
+  sprintGoal         String?
+  teamCapacityPoints Int
+  availableDays      Int?
+  teamSize           Int?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  planningRuns PlanningRun[]
+
+  @@index([projectId])
+  @@map("sprint_contexts")
+}
+
+/// A single planning run: the persisted, structured output of the planning
+/// orchestration (see lib/planning/orchestrator.ts) for one sprint context.
+/// Stored so results can be reopened and reviewed later without
+/// re-running the orchestration. The `prioritizedItems`/`recommendedItems`/
+/// `excludedItems` snapshots (one entry per scored backlog item, matching
+/// the shape validated by lib/planning/validators.ts) are stored as JSON
+/// rather than normalized rows, since they are always read/written as a
+/// whole and never queried individually - this keeps the schema simple
+/// while still being able to fully reconstruct a run. This model is
+/// intentionally generic enough to also hold a future AI-assisted result
+/// (only `generatedBy` would change from "rule-based-v1" to a model name).
+model PlanningRun {
+  id                          String        @id @default(cuid())
+  projectId                   String
+  project                     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sprintContextId             String
+  sprintContext               SprintContext @relation(fields: [sprintContextId], references: [id], onDelete: Cascade)
+  generatedBy                 String
+  rationaleSummary            String
+  riskFlags                   String[]
+  totalRecommendedStoryPoints Int
+  prioritizedItems            Json
+  recommendedItems            Json
+  excludedItems                Json
+  createdAt                   DateTime      @default(now())
+
+  @@index([projectId])
+  @@index([sprintContextId])
+  @@map("planning_runs")
+}
+
+/// Labels a Project as one of a small, predefined set of demo/evaluation
+/// scenarios used for thesis usability evaluation and demonstrations (see
+/// prisma/seed.ts and docs/evaluation-scenarios.md). A scenario is not a
+/// new kind of data - it is a regular Project with its own backlog items,
+/// dependencies, and sprint context - this model only adds an identifying
+/// `key`/`name`/`purpose` so the UI can show a "demo scenario" badge and a
+/// simple scenario list can point evaluators at known, reproducible cases
+/// instead of requiring manual data entry before every demo.
+model EvaluationScenario {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  purpose   String
+  projectId String   @unique
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("evaluation_scenarios")
+}
+

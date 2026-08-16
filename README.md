@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Generative AI Sprint Planning Assistant
 
-## Getting Started
+A master's thesis MVP: a workflow-based sprint-planning assistant for
+Scrum-style teams. The application helps users prioritize backlog items,
+recommend sprint scope, explain recommendation logic, flag basic risks and
+dependencies, and save/review planning runs.
 
-First, run the development server:
+See [docs/copilot-master-prompt.md](docs/copilot-master-prompt.md) and
+[docs/architecture-spec.md](docs/architecture-spec.md) for the full product
+and architecture specification. The confirmed stack and MVP boundaries in
+those documents must be followed for all future changes.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech stack
+
+- Next.js (App Router) + React + TypeScript
+- Tailwind CSS
+- PostgreSQL + Prisma ORM (v7, driver adapters)
+- OpenAI API, orchestrated through a custom module in `lib/planning/`
+
+## Project structure
+
+```
+app/                  Next.js App Router routes and layout
+components/           Shared UI components (e.g. nav bar)
+lib/
+  prisma.ts           Prisma client singleton (PostgreSQL driver adapter)
+  planning/           Custom AI orchestration layer
+    scoring.ts        Deterministic backlog pre-ranking
+    prompt-builder.ts Structured prompt construction
+    validators.ts     Request/response validation (Zod)
+    orchestrator.ts   Coordinates scoring, prompting, validation, persistence
+prisma/
+  schema.prisma       Database schema (models added incrementally)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 20.19+ and npm
+- A local or hosted PostgreSQL database (e.g. Postgres.app, Docker, or
+  Supabase)
+- An OpenAI API key
 
-## Learn More
+### Steps
 
-To learn more about Next.js, take a look at the following resources:
+1. Install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Copy the environment template and fill in real values:
 
-## Deploy on Vercel
+   ```bash
+   cp .env.example .env
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Set `DATABASE_URL` to your PostgreSQL connection string and
+   `OPENAI_API_KEY` to a valid OpenAI API key.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Apply the database schema (once models exist in `prisma/schema.prisma`):
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000).
+
+### Useful commands
+
+- `npx prisma generate` — regenerate the Prisma client after schema changes
+- `npx prisma studio` — browse the database visually
+- `npm run lint` — run ESLint
+- `npm run build` — production build
