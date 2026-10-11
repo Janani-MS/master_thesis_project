@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 /**
  * Top-level navigation shell for the Sprint Planning Assistant.
  *
@@ -9,11 +7,12 @@ import Link from "next/link";
 export function NavBar() {
   return (
     <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold text-zinc-900">
-          Sprint Planning Assistant
-        </Link>
-        <nav className="text-sm text-zinc-500">Dashboard</nav>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="px-7">
+          <h1 className="text-3xl font-bold text-zinc-900">
+            Sprint Planning Assistant
+          </h1>
+        </div>
       </div>
     </header>
   );

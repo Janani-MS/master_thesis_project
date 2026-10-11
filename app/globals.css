@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f6fb;
+  --foreground: #17243a;
+  --brand: #315fbd;
+  --brand-hover: #254fa6;
+  --brand-soft: #edf3ff;
+  --border: #dce4ef;
+  --muted: #64748b;
+  --surface: #ffffff;
+  --shadow-panel: 0 8px 24px rgb(30 52 86 / 6%);
 }
 
 @theme inline {
@@ -12,15 +19,294 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(
+    145deg,
+    #f7f9fd 0%,
+    var(--background) 60%,
+    #edf3fa 100%
+  );
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body > header {
+  border-color: var(--border);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 1px 4px rgb(30 52 86 / 4%);
+  backdrop-filter: blur(12px);
+}
+
+body > header a {
+  color: #1c3152;
+  transition: color 150ms ease;
+}
+
+body > header a:hover {
+  color: var(--brand);
+}
+
+body > header nav {
+  color: #536985;
+  font-weight: 500;
+}
+
+main {
+  max-width: 76rem;
+  padding-top: 2.25rem;
+  padding-bottom: 3.5rem;
+}
+
+main h1 {
+  color: #182b49;
+  font-size: 1.8rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+main h2 {
+  color: #233b60;
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+main h3 {
+  color: #2c4569;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+main h4 {
+  color: #203858;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+main > div > section,
+main .dashboard-panels > section,
+main .sprint-planning-panels > section,
+main .backlog-workspace-panels > section {
+  border-color: var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-panel);
+}
+
+main p {
+  line-height: 1.6;
+}
+
+main label {
+  color: #40536f;
+  font-weight: 550;
+}
+
+main input:not([type="radio"]):not([type="checkbox"]),
+main textarea,
+main select {
+  min-height: 40px;
+  border-color: #cbd6e4;
+  border-radius: 7px;
+  background-color: #fff;
+  color: #1f3049;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+main textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+main input::placeholder,
+main textarea::placeholder {
+  color: #94a3b8;
+}
+
+main input:not([type="radio"]):not([type="checkbox"]):focus,
+main textarea:focus,
+main select:focus {
+  border-color: #6c91db;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgb(49 95 189 / 14%);
+}
+
+main input[type="radio"],
+main input[type="checkbox"] {
+  accent-color: var(--brand);
+}
+
+main button.bg-zinc-900 {
+  border: 1px solid var(--brand);
+  border-radius: 7px;
+  background: var(--brand);
+  box-shadow: 0 2px 4px rgb(49 95 189 / 16%);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+main button.bg-zinc-900:hover:not(:disabled) {
+  border-color: var(--brand-hover);
+  background: var(--brand-hover);
+  box-shadow: 0 4px 10px rgb(49 95 189 / 22%);
+  transform: translateY(-1px);
+}
+
+main button.bg-zinc-900:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+main button.border {
+  border-color: #cbd6e4;
+  border-radius: 7px;
+  background: #fff;
+  color: #40536f;
+}
+
+main button.border:hover:not(:disabled) {
+  border-color: #aabbd2;
+  background: #f5f8fc;
+}
+
+main button.text-red-600,
+main button.text-zinc-600 {
+  border-radius: 5px;
+  padding: 0.2rem 0.4rem;
+  font-weight: 550;
+  transition: background-color 150ms ease;
+}
+
+main button.text-red-600:hover:not(:disabled) {
+  background: #fff1f1;
+}
+
+main button.text-zinc-600:hover:not(:disabled) {
+  background: #eff4fa;
+}
+
+main a {
+  text-underline-offset: 3px;
+}
+
+main a:not([class*="block"]) {
+  color: #315fbd;
+}
+
+main a:not([class*="block"]):hover {
+  color: #254fa6;
+}
+
+main table {
+  min-width: 660px;
+  border-collapse: collapse;
+  color: #40536f;
+}
+
+main th {
+  border-bottom: 1px solid #dce4ef;
+  background: #f6f8fc;
+  color: #536985;
+  font-size: 0.72rem;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+main td,
+main th {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+main tbody tr {
+  border-bottom: 1px solid #edf1f6;
+  transition: background-color 120ms ease;
+}
+
+main tbody tr:hover {
+  background: #f8faff;
+}
+
+main label:has(input[type="radio"]:checked) {
+  border-color: #8ba9e1;
+  background: var(--brand-soft);
+}
+
+main span.bg-green-100 {
+  background: #e4f6ef;
+  color: #17664b;
+}
+
+main span.bg-amber-100 {
+  background: #fff3d9;
+  color: #8a5b06;
+}
+
+main span.bg-zinc-100 {
+  background: #edf2f7;
+  color: #52647b;
+}
+
+main div.border-amber-200 {
+  border-color: #f0d697;
+  border-radius: 8px;
+  background: #fff9e9;
+}
+
+main div.border-indigo-200 {
+  border-color: #cbd9f5;
+  border-radius: 8px;
+  background: #f0f5ff;
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  main > div > section,
+  main .dashboard-panels > section,
+  main .sprint-planning-panels > section,
+  main .backlog-workspace-panels > section {
+    padding: 1.125rem;
+  }
+
+  main h1 {
+    font-size: 1.55rem;
+  }
+
+  body > header > div {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  body > header a {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  body > header nav {
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

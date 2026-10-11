@@ -129,19 +129,37 @@ export function BacklogWorkspace({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h3 className="text-sm font-medium text-zinc-900">
-          {editingItem ? "Edit backlog item" : "Add backlog item"}
-        </h3>
-        <div className="mt-3">
-          <BacklogItemForm
-            key={editingItem?.id ?? "create"}
-            projectId={projectId}
-            initialItem={editingItem ?? undefined}
-            onSaved={editingItem ? handleUpdated : handleCreated}
-            onCancel={editingItem ? () => setEditingItem(null) : undefined}
-          />
-        </div>
+      <div className="backlog-workspace-panels flex flex-col gap-6">
+        <section className="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 className="text-sm font-medium text-zinc-900">
+            {editingItem ? "Edit backlog item" : "Add backlog item"}
+          </h3>
+          <div className="mt-3">
+            <BacklogItemForm
+              key={editingItem?.id ?? "create"}
+              projectId={projectId}
+              initialItem={editingItem ?? undefined}
+              onSaved={editingItem ? handleUpdated : handleCreated}
+              onCancel={editingItem ? () => setEditingItem(null) : undefined}
+            />
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 className="text-sm font-medium text-zinc-900">Dependencies</h3>
+          <p className="mt-1 text-sm text-zinc-500">
+            Define which backlog items depend on other items being done first.
+          </p>
+          <div className="mt-3">
+            <DependencyManager
+              projectId={projectId}
+              items={items}
+              dependencies={dependencies}
+              onCreated={handleDependencyCreated}
+              onDeleted={handleDependencyDeleted}
+            />
+          </div>
+        </section>
       </div>
 
       {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
@@ -228,22 +246,6 @@ export function BacklogWorkspace({
           </table>
         </div>
       )}
-
-      <div>
-        <h3 className="text-sm font-medium text-zinc-900">Dependencies</h3>
-        <p className="mt-1 text-sm text-zinc-500">
-          Define which backlog items depend on other items being done first.
-        </p>
-        <div className="mt-3">
-          <DependencyManager
-            projectId={projectId}
-            items={items}
-            dependencies={dependencies}
-            onCreated={handleDependencyCreated}
-            onDeleted={handleDependencyDeleted}
-          />
-        </div>
-      </div>
     </div>
   );
 }

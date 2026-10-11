@@ -1,0 +1,12 @@
+Command: npx prisma migrate status
+Captured: 2026-10-11
+
+Loaded Prisma config from prisma.config.ts.
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "sprint_planning", schema "public" at "localhost:5432"
+
+6 migrations found in prisma/migrations
+
+Database schema is up to date!
+
+An available-update notice for Prisma 8.0.0-rc.22 was also printed; no package changes were made.

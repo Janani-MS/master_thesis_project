@@ -16,48 +16,50 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Home</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Manage projects and review sprint planning runs.
+          View, Manage, and create projects.
         </p>
       </div>
 
-      <section className="rounded-lg border border-zinc-200 bg-white p-6">
-        <h2 className="text-base font-medium text-zinc-900">Projects</h2>
+      <div className="dashboard-panels grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(18rem,1fr)]">
+        <section className="rounded-lg border border-zinc-200 bg-white p-6">
+          <h2 className="text-base font-medium text-zinc-900">Projects</h2>
 
-        {projects.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-500">
-            No projects yet. Create your first project below.
-          </p>
-        ) : (
-          <ul className="mt-4 divide-y divide-zinc-200">
-            {projects.map((project) => (
-              <li key={project.id} className="py-3">
-                <Link
-                  href={`/projects/${project.id}`}
-                  className="text-sm font-medium text-zinc-900 hover:underline"
-                >
-                  {project.name}
-                </Link>
-                {project.description && (
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {project.description}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+          {projects.length === 0 ? (
+            <p className="mt-2 text-sm text-zinc-500">
+              No projects yet. Use the form to create your first project.
+            </p>
+          ) : (
+            <ul className="mt-4 divide-y divide-zinc-200">
+              {projects.map((project) => (
+                <li key={project.id} className="py-3">
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="text-sm font-medium text-zinc-900 hover:underline"
+                  >
+                    {project.name}
+                  </Link>
+                  {project.description && (
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {project.description}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-        <div className="mt-6 border-t border-zinc-200 pt-6">
-          <h3 className="text-sm font-medium text-zinc-900">
+        <section className="rounded-lg border border-zinc-200 bg-white p-6">
+          <h2 className="text-base font-medium text-zinc-900">
             Create a project
-          </h3>
+          </h2>
           <div className="mt-3">
             <CreateProjectForm />
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {scenarios.length > 0 && (
         <section className="rounded-lg border border-zinc-200 bg-white p-6">
@@ -84,16 +86,6 @@ export default async function Home() {
           </ul>
         </section>
       )}
-
-      <section className="rounded-lg border border-zinc-200 bg-white p-6">
-        <h2 className="text-base font-medium text-zinc-900">
-          Recent planning runs
-        </h2>
-        <p className="mt-2 text-sm text-zinc-500">
-          No planning runs yet. This section will list recent runs once the
-          planning history feature is implemented.
-        </p>
-      </section>
     </div>
   );
 }
