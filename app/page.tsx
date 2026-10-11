@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreateProjectForm } from "@/components/create-project-form";
+import { ProjectList } from "@/components/project-list";
 import { listProjects } from "@/lib/projects/queries";
 import { listEvaluationScenarios } from "@/lib/evaluation-scenarios/queries";
 
@@ -7,18 +8,25 @@ import { listEvaluationScenarios } from "@/lib/evaluation-scenarios/queries";
 // must not be cached as static output.
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [projects, scenarios] = await Promise.all([
-    listProjects(),
-    listEvaluationScenarios(),
-  ]);
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
+}) {
+  const [[projects, scenarios], { deleted, deletedProjectName }] =
+    await Promise.all([
+      Promise.all([listProjects(), listEvaluationScenarios()]),
+      searchParams,
+    ]);
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900">Home</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          View, Manage, and create projects.
+          View, Manage, and Create Projects.
         </p>
       </div>
 
@@ -26,29 +34,15 @@ export default async function Home() {
         <section className="rounded-lg border border-zinc-200 bg-white p-6">
           <h2 className="text-base font-medium text-zinc-900">Projects</h2>
 
-          {projects.length === 0 ? (
-            <p className="mt-2 text-sm text-zinc-500">
-              No projects yet. Use the form to create your first project.
-            </p>
-          ) : (
-            <ul className="mt-4 divide-y divide-zinc-200">
-              {projects.map((project) => (
-                <li key={project.id} className="py-3">
-                  <Link
-                    href={`/projects/${project.id}`}
-                    className="text-sm font-medium text-zinc-900 hover:underline"
-                  >
-                    {project.name}
-                  </Link>
-                  {project.description && (
-                    <p className="mt-1 text-sm text-zinc-500">
-                      {project.description}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          <ProjectList
+            projects={projects}
+            wasDeleted={deleted === "1"}
+            deletedProjectName={
+              typeof deletedProjectName === "string"
+                ? deletedProjectName
+                : undefined
+            }
+          />
         </section>
 
         <section className="rounded-lg border border-zinc-200 bg-white p-6">

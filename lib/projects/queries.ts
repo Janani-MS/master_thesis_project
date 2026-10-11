@@ -27,3 +27,8 @@ export function createProject(input: CreateProjectInput) {
     },
   });
 }
+
+export async function deleteProject(id: string) {
+  const result = await prisma.project.deleteMany({ where: { id } });
+  return result.count > 0;
+}

@@ -7,6 +7,7 @@ import { listSprintContextsForProject } from "@/lib/sprint-contexts/queries";
 import { listPlanningRunsForProject } from "@/lib/planning-runs/queries";
 import { getEvaluationScenarioByProjectId } from "@/lib/evaluation-scenarios/queries";
 import { BacklogWorkspace } from "@/components/backlog-workspace";
+import { DeleteProjectButton } from "@/components/delete-project-button";
 import { SprintPlanningWorkspace } from "@/components/sprint-planning-workspace";
 import { EvaluationScenarioBadge } from "@/components/evaluation-scenario-badge";
 
@@ -33,24 +34,31 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <Link href="/" className="text-sm text-zinc-500 hover:underline">
-          &larr; Back to dashboard
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-zinc-900">
-          {project.name}
-        </h1>
-        {project.description && (
-          <p className="mt-1 text-sm text-zinc-500">{project.description}</p>
-        )}
-        {scenario && (
-          <div className="mt-3">
-            <EvaluationScenarioBadge
-              name={scenario.name}
-              purpose={scenario.purpose}
-            />
-          </div>
-        )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <Link href="/" className="text-sm text-zinc-500 hover:underline">
+            &larr; Back to dashboard
+          </Link>
+          <h1 className="mt-2 text-2xl font-semibold text-zinc-900">
+            {project.name}
+          </h1>
+          {project.description && (
+            <p className="mt-1 text-sm text-zinc-500">{project.description}</p>
+          )}
+          {scenario && (
+            <div className="mt-3">
+              <EvaluationScenarioBadge
+                name={scenario.name}
+                purpose={scenario.purpose}
+              />
+            </div>
+          )}
+        </div>
+        <DeleteProjectButton
+          projectId={project.id}
+          projectName={project.name}
+          redirectOnDelete
+        />
       </div>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-6">

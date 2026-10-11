@@ -271,6 +271,28 @@ main div.border-indigo-200 {
   background: #f0f5ff;
 }
 
+.project-delete-toast {
+  animation: project-delete-toast 4s ease both;
+}
+
+@keyframes project-delete-toast {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  6%,
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
 @media (max-width: 640px) {
   main {
     padding: 1.5rem 1rem 2.5rem;
@@ -308,5 +330,9 @@ main div.border-indigo-200 {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .project-delete-toast {
+    animation: none;
   }
 }
