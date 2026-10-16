@@ -82,7 +82,8 @@ export async function runPlanningOrchestration(
     input.sprintContext.teamCapacityPoints,
   );
 
-  const aiDecision = await callOpenAiForPlanningDecision(promptPayload);
+  const providerResult = await callOpenAiForPlanningDecision(promptPayload);
+  const aiDecision = providerResult?.decision;
   const validAiDecision =
     aiDecision && isAiDecisionConsistentWithCandidates(aiDecision, scoredItems)
       ? aiDecision
@@ -104,7 +105,7 @@ export async function runPlanningOrchestration(
     );
     riskFlags = validAiDecision.riskFlags;
     rationaleSummary = validAiDecision.rationaleSummary;
-    generatedBy = "openai-v1";
+    generatedBy = providerResult!.generatedBy;
   } else {
     recommendedItems = fallback.recommendedItems;
     excludedItems = fallback.excludedItems;
@@ -173,17 +174,46 @@ const OPENAI_SYSTEM_PROMPT =
  */
 async function callOpenAiForPlanningDecision(
   payload: PlanningPromptPayload,
-): Promise<AiPlanningDecision | null> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+): Promise<{
+  decision: AiPlanningDecision;
+  generatedBy: "openai-v1" | "gemini-3.5-flash-lite-v1";
+} | null> {
+  const provider = process.env.PLANNING_PROVIDER;
+  if (provider !== "gemini" && provider !== "openai") {
     console.warn(
-      "[planning] OPENAI_API_KEY is not set; using the deterministic fallback.",
+      "[planning] Missing or invalid provider; using the deterministic fallback.",
     );
     return null;
   }
 
-  const client = new OpenAI({ apiKey });
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const apiKey =
+    provider === "gemini"
+      ? process.env.OPENAI_API_KEY
+      : process.env.OPENAI_PROVIDER_API_KEY;
+  const model =
+    provider === "gemini"
+      ? process.env.GEMINI_MODEL
+      : process.env.OPENAI_MODEL || "gpt-4o-mini";
+  if (
+    !apiKey?.trim() ||
+    !model?.trim() ||
+    (provider === "gemini" && model !== "gemini-3.5-flash-lite")
+  ) {
+    console.warn(
+      "[planning] Missing credential or invalid model configuration; using the deterministic fallback.",
+    );
+    return null;
+  }
+
+  const client = new OpenAI({
+    apiKey,
+    baseURL:
+      provider === "gemini"
+        ? "https://generativelanguage.googleapis.com/v1beta/openai/"
+        : "https://api.openai.com/v1",
+    ...(provider === "gemini" ? { maxRetries: 0 } : {}),
+    logLevel: "off",
+  });
 
   let content: string | null | undefined;
   try {
@@ -197,10 +227,9 @@ async function callOpenAiForPlanningDecision(
       ],
     });
     content = response.choices[0]?.message?.content;
-  } catch (error) {
+  } catch {
     console.error(
-      "[planning] OpenAI request failed; using the deterministic fallback.",
-      error,
+      "[planning] Provider request failed; using the deterministic fallback.",
     );
     return null;
   }
@@ -232,7 +261,11 @@ async function callOpenAiForPlanningDecision(
     return null;
   }
 
-  return parsed.data;
+  return {
+    decision: parsed.data,
+    generatedBy:
+      provider === "gemini" ? "gemini-3.5-flash-lite-v1" : "openai-v1",
+  };
 }
 
 /**

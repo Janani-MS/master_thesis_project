@@ -48,7 +48,11 @@ export const planningResultSchema = z.object({
   // tell an OpenAI-generated recommendation apart from the deterministic
   // rule-based fallback that is used whenever the model call fails or its
   // output does not validate.
-  generatedBy: z.enum(["openai-v1", "rule-based-v1-fallback"]),
+  generatedBy: z.enum([
+    "openai-v1",
+    "gemini-3.5-flash-lite-v1",
+    "rule-based-v1-fallback",
+  ]),
 });
 
 export type PlanningResult = z.infer<typeof planningResultSchema>;
